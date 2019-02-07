@@ -2,6 +2,7 @@
 <html lang="fr">
 
 <head>
+    <script src="https://www.gstatic.com/firebasejs/5.8.2/firebase.js"></script>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -10,10 +11,15 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
         crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="all.css">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+        crossorigin="anonymous">
 
     <title>BookPower</title>
 </head>
+
+
+
 
 <body>
     <div class="container">
@@ -24,16 +30,43 @@
                         <h5 class="card-title text-center">Cahier de charge</h5>
                         <form class="form-signin">
                             <div class="form-label-group">
-                                <input type="text" id="inputRemplit" class="form-control" placeholder="Remplit"
+                                <input type="text" id="inputBut" class="form-control" placeholder="Se que l'application vient resoudre ou apporter"
                                     required autofocus>
-                                <label for="inputRemplit">Remplit</label>
+                                <label for="inputBut">Quelle est le but principal ?</label>
                             </div>
                             <div class="form-label-group">
-                                <input type="text" id="inputRemplit" class="form-control" placeholder="Remplit"
+                                <input type="text" id="inputUsers" class="form-control" placeholder="Les livreurs, les clients ?"
                                     required>
-                                <label for="inputRemplit">Remplit</label>
+                                <label for="inputUsers">A qui s’addresse l’application ?</label>
                             </div>
-                            <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Valider</button>
+
+                            <label for="inputFeature">Quelle sont les fonctionaliter ?</label>
+
+                            <div class="form-label-group features">
+                                <div class="entry input-group col-xs-3">
+                                    <input class="form-control" id="inputFeature0" name="fields[]" type="text"
+                                        placeholder="features" />
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-success btn-add" type="button">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </span>
+
+                                </div>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="text" id="inputNbrEcran" class="form-control" placeholder="L'ecran de connexion...."
+                                    required>
+                                <label for="inputNbrEcran">combien d’écran ?</label>
+                            </div>
+                            <div class="form-label-group">
+                                <input type="text" id="inputWorkflow" class="form-control" placeholder="Une petit histoire"
+                                    required>
+                                <label for="inputWorkflow">Décrit le workflow </label>
+                            </div>
+
+
+                            <button class="btn btn-lg btn-primary btn-block text-uppercase" id="submit" type="submit">Valider</button>
 
                         </form>
                     </div>
@@ -55,3 +88,87 @@
 </body>
 
 </html>
+<script>
+    var config = {
+        apiKey: "AIzaSyAmxqjuYTwWnxNPwdVaCdGZD3ul1OBux7Y",
+        authDomain: "bookpower-49a61.firebaseapp.com",
+        databaseURL: "https://bookpower-49a61.firebaseio.com",
+        projectId: "bookpower-49a61",
+        storageBucket: "bookpower-49a61.appspot.com",
+        messagingSenderId: "801919743527"
+    };
+    firebase.initializeApp(config);
+    function entierAleatoire(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    //Utilisation
+    //La variable contient un nombre aléatoire compris entre 1 et 10
+    var number = entierAleatoire(1, 10000000);
+    var Projet = firebase.database().ref("Projet/" + number);
+
+    var compteur = 0;
+    $(document).ready(function () {
+        $(document).on('click', '#submit', function (e) {
+            console.log(compteur);
+            debugger;
+            // Get input values from each of the form elements
+            var but = $("#inputBut").val();
+            var users = $("#inputUsers").val();
+            for (var i = 0; i < compteur; i++) {
+                var feature = [];
+                var a = $("#inputFeature" + i).val();
+                feature.push(a);
+
+            }
+
+
+            var nbrEcran = $("#inputNbrEcran").val();
+            var workflow = $("#inputWorkflow").val();
+            // Push a new recommendation to the database using those values
+            console.log(nbrEcran);
+
+            Projet.set({
+                "but": but,
+                "users": users,
+                "feature": feature,
+                "nbrEcran": nbrEcran,
+                "workflow": workflow
+            });
+
+            location.reload();
+
+
+        });
+        $(function () {
+            $(document).on('click', '.btn-add', function (e) {
+                $("#inputFeature").attr("id", "inputFeature" + compteur);
+
+                e.preventDefault();
+                compteur++;
+                console.log(compteur);
+                var controlForm = $('.features:first'),
+                    currentEntry = $(this).parents('.entry:first'),
+                    newEntry = $(currentEntry.clone()).appendTo(controlForm);
+                $("#inputFeature").attr("id", "inputFeature" + compteur);
+                newEntry.find('input').val('');
+                controlForm.find('.entry:not(:last) .btn-add')
+                    .removeClass('btn-add').addClass('btn-remove')
+                    .removeClass('btn-success').addClass('btn-danger')
+                    .html('<i class="fas fa-minus"></i>');
+            }).on('click', '.btn-remove', function (e) {
+                $(this).parents('.entry:first').remove();
+
+                e.preventDefault();
+                return false;
+            });
+        });
+
+
+
+        // Reference to the Projet object in your Firebase database
+
+        // Save a new recommendation to the database, using the input in the form
+
+
+    });
+</script>
